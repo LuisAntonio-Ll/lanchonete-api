@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 function errorHandler(err, req, res, next) {
-  const statusCode = err.statusCode || (err.name === 'Error' ? 400 : 500);
+ const statusCode = err.statusCode || (err.name === 'Error' ? 400 : 500);
 
   if (statusCode === 500) {
     console.error(err);

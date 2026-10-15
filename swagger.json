@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API da Lanchonete",
+    "description": "API RESTful para gerenciamento de produtos e pedidos de uma lanchonete.",
+    "version": "1.0.0"
+  },
+  "paths": {}
+}
