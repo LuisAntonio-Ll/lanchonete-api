@@ -33,7 +33,7 @@ class CriarPedidoUseCase {
         const pedido = new Pedido({
             clienteNome,
             itens: itensPedido,
-            disconutStrategy: this.discountStrategy,
+            discountStrategy: this.discountStrategy,
         });
 
         return this.pedidoRepository.salvar(pedido);
