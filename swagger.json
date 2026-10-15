@@ -5,5 +5,339 @@
     "description": "API RESTful para gerenciamento de produtos e pedidos de uma lanchonete.",
     "version": "1.0.0"
   },
-  "paths": {}
+  "servers": [{ "url": "http://localhost:3000", "description": "Servidor local" }],
+  "tags": [
+    { "name": "Produtos", "description": "Catálogo de produtos da lanchonete" },
+    { "name": "Pedidos", "description": "Pedidos feitos pelos clientes" }
+  ],
+  "paths": {
+    "/produtos": {
+      "post": {
+        "tags": ["Produtos"],
+        "summary": "Cria um novo produto",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProdutoInput" },
+              "example": {
+                "nome": "X-Burger",
+                "categoria": "LANCHE",
+                "preco": 30,
+                "tempoPreparoMinutos": 15
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produto criado com sucesso",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Produto" } }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Requisicao400" },
+          "500": { "$ref": "#/components/responses/ErroInterno500" }
+        }
+      },
+      "get": {
+        "tags": ["Produtos"],
+        "summary": "Lista todos os produtos",
+        "responses": {
+          "200": {
+            "description": "Lista de produtos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Produto" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ErroInterno500" }
+        }
+      }
+    },
+    "/produtos/{id}": {
+      "get": {
+        "tags": ["Produtos"],
+        "summary": "Busca um produto pelo id",
+        "parameters": [{ "$ref": "#/components/parameters/IdPath" }],
+        "responses": {
+          "200": {
+            "description": "Produto encontrado",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Produto" } }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NaoEncontrado404" },
+          "500": { "$ref": "#/components/responses/ErroInterno500" }
+        }
+      },
+      "put": {
+        "tags": ["Produtos"],
+        "summary": "Atualiza um produto existente",
+        "description": "Atualização parcial: envie apenas os campos que deseja alterar.",
+        "parameters": [{ "$ref": "#/components/parameters/IdPath" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProdutoUpdate" },
+              "example": { "preco": 34.9 }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Produto atualizado",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Produto" } }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Requisicao400" },
+          "404": { "$ref": "#/components/responses/NaoEncontrado404" },
+          "500": { "$ref": "#/components/responses/ErroInterno500" }
+        }
+      },
+      "delete": {
+        "tags": ["Produtos"],
+        "summary": "Remove um produto",
+        "parameters": [{ "$ref": "#/components/parameters/IdPath" }],
+        "responses": {
+          "204": { "description": "Produto removido com sucesso (sem corpo)" },
+          "404": { "$ref": "#/components/responses/NaoEncontrado404" },
+          "500": { "$ref": "#/components/responses/ErroInterno500" }
+        }
+      }
+    },
+    "/pedidos": {
+      "post": {
+        "tags": ["Pedidos"],
+        "summary": "Cria um novo pedido",
+        "description": "Calcula automaticamente o valor total, o desconto (10% para pedidos a partir de R$ 50,00) e o tempo de preparo estimado (maior tempo entre os itens).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PedidoInput" },
+              "example": {
+                "clienteNome": "Maria",
+                "itens": [{ "produtoId": 1, "quantidade": 2 }]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pedido criado com sucesso",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Pedido" } }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Requisicao400" },
+          "404": { "$ref": "#/components/responses/NaoEncontrado404" },
+          "500": { "$ref": "#/components/responses/ErroInterno500" }
+        }
+      },
+      "get": {
+        "tags": ["Pedidos"],
+        "summary": "Lista todos os pedidos",
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Pedido" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ErroInterno500" }
+        }
+      }
+    },
+    "/pedidos/{id}": {
+      "get": {
+        "tags": ["Pedidos"],
+        "summary": "Busca um pedido pelo id",
+        "parameters": [{ "$ref": "#/components/parameters/IdPath" }],
+        "responses": {
+          "200": {
+            "description": "Pedido encontrado",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Pedido" } }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NaoEncontrado404" },
+          "500": { "$ref": "#/components/responses/ErroInterno500" }
+        }
+      }
+    },
+    "/pedidos/{id}/status": {
+      "patch": {
+        "tags": ["Pedidos"],
+        "summary": "Avança o status do pedido",
+        "description": "Fluxo obrigatório: RECEBIDO -> EM_PREPARO -> PRONTO -> ENTREGUE. O cancelamento (CANCELADO) é permitido a qualquer momento antes de ENTREGUE.",
+        "parameters": [{ "$ref": "#/components/parameters/IdPath" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/StatusInput" },
+              "example": { "status": "EM_PREPARO" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status atualizado com sucesso",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Pedido" } }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Requisicao400" },
+          "404": { "$ref": "#/components/responses/NaoEncontrado404" },
+          "500": { "$ref": "#/components/responses/ErroInterno500" }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "IdPath": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Identificador numérico do recurso",
+        "schema": { "type": "integer", "example": 1 }
+      }
+    },
+    "schemas": {
+      "ProdutoInput": {
+        "type": "object",
+        "required": ["nome", "categoria", "preco", "tempoPreparoMinutos"],
+        "properties": {
+          "nome": { "type": "string", "example": "X-Burger" },
+          "categoria": {
+            "type": "string",
+            "enum": ["LANCHE", "BEBIDA", "SOBREMESA", "ACOMPANHAMENTO"]
+          },
+          "preco": { "type": "number", "example": 30 },
+          "tempoPreparoMinutos": { "type": "number", "example": 15 },
+          "ativo": { "type": "boolean", "example": true }
+        }
+      },
+      "ProdutoUpdate": {
+        "type": "object",
+        "description": "Todos os campos são opcionais na atualização.",
+        "properties": {
+          "nome": { "type": "string" },
+          "categoria": {
+            "type": "string",
+            "enum": ["LANCHE", "BEBIDA", "SOBREMESA", "ACOMPANHAMENTO"]
+          },
+          "preco": { "type": "number" },
+          "tempoPreparoMinutos": { "type": "number" },
+          "ativo": { "type": "boolean" }
+        }
+      },
+      "Produto": {
+        "allOf": [
+          { "type": "object", "properties": { "id": { "type": "integer", "example": 1 } } },
+          { "$ref": "#/components/schemas/ProdutoInput" }
+        ]
+      },
+      "ItemPedidoInput": {
+        "type": "object",
+        "required": ["produtoId", "quantidade"],
+        "properties": {
+          "produtoId": { "type": "integer", "example": 1 },
+          "quantidade": { "type": "integer", "example": 2 }
+        }
+      },
+      "ItemPedido": {
+        "type": "object",
+        "properties": {
+          "produtoId": { "type": "integer", "example": 1 },
+          "nomeProduto": { "type": "string", "example": "X-Burger" },
+          "precoUnitario": { "type": "number", "example": 30 },
+          "quantidade": { "type": "integer", "example": 2 },
+          "tempoPreparoMinutos": { "type": "number", "example": 15 },
+          "subtotal": { "type": "number", "example": 60 }
+        }
+      },
+      "PedidoInput": {
+        "type": "object",
+        "required": ["clienteNome", "itens"],
+        "properties": {
+          "clienteNome": { "type": "string", "example": "Maria" },
+          "itens": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ItemPedidoInput" }
+          }
+        }
+      },
+      "Pedido": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "clienteNome": { "type": "string", "example": "Maria" },
+          "itens": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ItemPedido" }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["RECEBIDO", "EM_PREPARO", "PRONTO", "ENTREGUE", "CANCELADO"]
+          },
+          "valorTotal": { "type": "number", "example": 60 },
+          "desconto": { "type": "number", "example": 6 },
+          "valorFinal": { "type": "number", "example": 54 },
+          "tempoPreparoEstimado": { "type": "number", "example": 15 },
+          "criadoEm": { "type": "string", "format": "date-time" }
+        }
+      },
+      "StatusInput": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["EM_PREPARO", "PRONTO", "ENTREGUE", "CANCELADO"]
+          }
+        }
+      },
+      "Erro": {
+        "type": "object",
+        "properties": {
+          "erro": { "type": "string", "example": "AppError" },
+          "mensagem": { "type": "string", "example": "Produto com id 999 não encontrado" }
+        }
+      }
+    },
+    "responses": {
+      "Requisicao400": {
+        "description": "Dados inválidos ou regra de negócio violada",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/Erro" } }
+        }
+      },
+      "NaoEncontrado404": {
+        "description": "Recurso não encontrado",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/Erro" } }
+        }
+      },
+      "ErroInterno500": {
+        "description": "Erro interno do servidor",
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/Erro" } }
+        }
+      }
+    }
+  }
 }
