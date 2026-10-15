@@ -1,4 +1,4 @@
-const FLUXO_STATUS = ['RECEBIDO', 'EM_ PREPARO', 'PRONTO', 'ENTREGUE'];
+const FLUXO_STATUS = ['RECEBIDO', 'EM_PREPARO', 'PRONTO', 'ENTREGUE'];
 
 class Pedido{
     constructor({id, clienteNome, itens, discountStrategy}){
@@ -15,7 +15,7 @@ class Pedido{
         this.status = 'RECEBIDO';
         this.criadoEm = new Date().toISOString();
 
-        this.valorTotal = this.calcularValorTotal();
+        this.valorTotal = this._calcularValorTotal();
         this.desconto = discountStrategy ? discountStrategy.calcular(this.valorTotal) : 0;
         this.valorFinal = Number((this.valorTotal - this.desconto).toFixed(2));
         this.tempoPreparoEstimado = this._calcularTempoPreparo();
