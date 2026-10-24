@@ -144,6 +144,18 @@
       "get": {
         "tags": ["Pedidos"],
         "summary": "Lista todos os pedidos",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filtra os pedidos pelo status",
+            "schema": {
+              "type": "string",
+              "enum": ["RECEBIDO", "EM_PREPARO", "PRONTO", "ENTREGUE", "CANCELADO"]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Lista de pedidos",
