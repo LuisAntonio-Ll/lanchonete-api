@@ -25,7 +25,7 @@ class CriarPedidoUseCase {
         for (const item of itens){
             const produto = await this.produtoRepository.buscarPorId(item.produtoId);
             if (!produto){
-                throw new AppError(`Produto com id ${item.produtoId} não encontado`, 404);
+                throw new AppError(`Produto com id ${item.produtoId} não encontrado`, 404);
             }
             itensPedido.push(ItemPedidoFactory.criar(produto, item.quantidade));
         }

@@ -9,7 +9,7 @@ const ItemPedido = require('../entities/ItemPedido');
 class ItemPedidoFactory {
     static criar(produto, quantidade){
         if(!produto.ativo){
-            throw new Error(`Produto "${produto.nome}" nçao está disponível no momento`);
+            throw new Error(`Produto "${produto.nome}" não está disponível no momento`);
         }
 
         return new ItemPedido({
