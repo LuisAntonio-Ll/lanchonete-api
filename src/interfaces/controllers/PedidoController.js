@@ -22,7 +22,7 @@ class PedidoController {
 
   listar = async (req, res, next) => {
     try {
-      const pedidos = await this.listarPedidosUseCase.execute();
+      const pedidos = await this.listarPedidosUseCase.execute({ status: req.query.status });
       res.status(200).json(pedidos);
     } catch (err) {
       next(err);
